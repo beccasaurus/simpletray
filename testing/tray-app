@@ -1,0 +1,106 @@
+#! /usr/bin/ruby
+
+$:.unshift File.dirname(__FILE__)
+
+require 'rubygems'
+require 'wx'
+
+require 'lib/ashacache'
+include Ashacache
+
+def member id
+  members.find { |m| m.id == id.to_i }
+end
+def members
+  @members ||= Member.find :all
+end
+def hunt id
+  hunts.find { |h| h.id == id.to_i }
+end
+def hunts
+  @hunts ||= Hunt.find :all
+end
+
+puts "loading ... " ; members ; hunts ; puts "done."
+
+def msgbox msg
+  Wx::MessageDialog.new(@frame, msg, 'Ashacache', Wx::OK, Wx::DEFAULT_POSITION ).show_modal
+end
+
+class DynamicMenuItem < Wx::MenuItem
+  def initialize *args
+    super *args
+    self.get_menu.evt_menu_highlight(self){ |evt| on_highlight(evt) }
+    @menu = Wx::Menu.new
+    self.set_sub_menu @menu
+  end
+  def on_highlight(evt)  end
+end
+
+class MemberMenuItem < DynamicMenuItem
+  def on_highlight(evt)
+    member = member (get_id - 8000)
+    if @menu.get_menu_item_count == 0
+      unless member.hunts.length == 0
+        member.hunts.each do |hunt|
+          menuitem = Wx::MenuItem.new @menu, -1, hunt.name
+          @menu.append_item menuitem
+          @menu.evt_menu(menuitem) { msgbox("clicked on hunt: #{hunt.inspect}") }
+        end
+      else
+          menuitem = Wx::MenuItem.new @menu, -1, "No Hunts"
+          @menu.append_item menuitem
+          # @menu.evt_menu(menuitem) { msgbox("clicked on item: #{member.name}") }
+      end
+    end
+  end
+end
+
+class MembersMenuItem < DynamicMenuItem
+  def on_highlight(evt)
+    if @menu.get_menu_item_count == 0
+      members.each do |member|
+        #menuitem = Wx::MenuItem.new @menu, -1, member.name
+        #@menu.append_item menuitem
+        #@menu.evt_menu(menuitem) { msgbox("clicked on item: #{member.name}") }
+        @menu.append_item MemberMenuItem.new(@menu, 8000 + member.id, member.name)
+      end
+    end
+  end
+end
+
+# Tray Icon
+class AshacacheTrayIcon < Wx::TaskBarIcon
+	def initialize
+		super()
+    init_icon
+    init_events
+	end
+
+	def create_popup_menu
+		@menu = Wx::Menu.new
+    @menu.append_item MembersMenuItem.new(@menu, 7000, 'Members')
+		@menu.append_separator
+		@menu.append Wx::ID_ABOUT, 'About'
+		@menu.append Wx::ID_EXIT, 'Quit'
+    @menu
+	end
+
+  def init_icon
+		icon_file = File.join File.dirname(__FILE__), 'icon.png'
+		set_icon Wx::Icon.new(icon_file, Wx::BITMAP_TYPE_PNG), 'Ashacache'
+  end
+
+  def init_events
+		evt_menu(Wx::ID_ABOUT) { 
+      msgbox("Welcome to AshaTray!\n\nA little neat system tray application for Ashacache.com") }
+		evt_menu(Wx::ID_EXIT) { exit }
+  end
+end
+
+trap("INT"){ puts "shutting down ..." ; exit }
+
+Wx::App.run do
+	self.app_name = 'AshaTray'
+	AshacacheTrayIcon.new
+end
