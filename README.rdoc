@@ -34,6 +34,11 @@ and ... simpletray!
       rover { puts "..." }
       spot  { puts "..." }
       rex   { msgbox "w00f, my name is rex!" } 
+
+      _more_dogs_ do
+        another_dog     { puts "..." }
+        yet_another_dog { puts "..." }
+      end
     }
 
     # adds an item (the same as saying my_custom_item) with a custom icon
