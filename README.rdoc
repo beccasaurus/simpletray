@@ -38,3 +38,6 @@ simpletray is a gem for making it really easy to make wxruby-based system tray a
 
 Also, see examples/first.rb (the first file I used for testing), which shows how to add 
 your own helper methods
+
+Note, currently I'm only supporting PNGs.  I'll fix this to support ICO/PNG/BMP/JPG/etc.
+My TODO list is long  :P
