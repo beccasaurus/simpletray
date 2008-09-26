@@ -69,7 +69,8 @@ class SimpleTray
     end
     def menu name, icon = nil, &block
       block = icon if block.nil? and icon.respond_to?:call
-      puts "menu: #{ name }"
+      item = MembersMenuItem.new @menu, 7000, name
+      @menu.append_item item
     end
     def seperator
       puts "seperator"
