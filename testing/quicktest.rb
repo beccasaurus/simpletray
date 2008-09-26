@@ -1,24 +1,78 @@
 #! /usr/bin/env ruby1.8.6
 %w( rubygems wx activesupport ).each {|lib| require lib }
 
-### WX Stuff (will likely move to a helper, but i wanna clean it up here first)
-
-def msgbox msg
-  Wx::MessageDialog.new(@frame, msg, 'Ashacache', Wx::OK, Wx::DEFAULT_POSITION ).show_modal
-end
-
-### SimpleTray
-
 class SimpleTray
+
+  # Use this to run your SimpleTray application
+  #
+  #  SimpleTray.app 'My Cool App' do
+  #    about { msgbox "My App!" }
+  #    exit
+  #  end
+  #
   def self.app title, &block
-    # App.new.instance_eval &block
-    run { App.new title, &block }
+    Wx::App.run { Icon.new title, &block }
   end
-  def self.run &block
-    Wx::App.run &block
+
+  # This is where the magic happens.
+  #
+  # Any methods you add to this module will be available in the DSL
+  #
+  #  module SimpleTray::Builder
+  #    def popup name, message
+  #      item( name ){ msgbox message }
+  #    end
+  #  end
+  #
+  #  SimpleTray.app 'My Cool App' do
+  #   popup 'Click Me', 'Hello!  This is my message!'
+  #  end
+  #
+  module Builder
+
+    def item name, icon = nil, &block
+      block = icon if block.nil? and icon.respond_to?:call
+      item = Wx::MenuItem.new @menu, -1, name
+      @menu.append_item item
+      @menu.evt_menu(item){ block.call }
+      item
+    end
+
+    def menu name, icon = nil, &block
+      block = icon if block.nil? and icon.respond_to?:call
+      item = SimpleTray::MenuItem.new @menu, name, icon, &block
+      @menu.append_item item
+    end
+
+    def seperator
+      @menu.append_separator
+    end
+
+    def exit name = 'Quit'
+      @menu.append Wx::ID_EXIT, name
+      @menu.evt_menu(Wx::ID_EXIT){ Kernel::exit }
+    end
+
+    alias quit exit
+
+    def msgbox msg
+      Wx::MessageDialog.new(@frame, msg, 'Ashacache', Wx::OK, Wx::DEFAULT_POSITION ).show_modal
+    end
+
+    def method_missing method, *args, &block
+      method = method.to_s
+      if method[/^_*$/]
+        seperator
+      elsif method[/^_.*_$/]
+        menu method.titleize.strip, *args, &block
+      else
+        item method.titleize, *args, &block
+      end
+    end
   end
 
   class MenuItem < Wx::MenuItem
+    include Builder
     def initialize menu, name, icon = nil, &block
       super(menu, -1, name)
       @menu = menu
@@ -32,41 +86,10 @@ class SimpleTray
         instance_eval &@item_block
       end
     end
-
-    # everything below here copied (for testing - i will DRY it up)
-    def item name, icon = nil, &block
-      block = icon if block.nil? and icon.respond_to?:call
-      item = Wx::MenuItem.new @menu, -1, name
-      @menu.append_item item
-      @menu.evt_menu(item){ block.call }
-      item
-    end
-    def menu name, icon = nil, &block
-      block = icon if block.nil? and icon.respond_to?:call
-      item = SimpleTray::MenuItem.new @menu, name, icon, &block
-      @menu.append_item item
-    end
-    def seperator
-      @menu.append_separator
-    end
-    def exit name = 'Quit'
-      @menu.append Wx::ID_EXIT, name
-      @menu.evt_menu(Wx::ID_EXIT){ Kernel::exit }
-    end
-    alias quit exit
-    def method_missing method, *args, &block
-      method = method.to_s
-      if method[/^_*$/]
-        seperator
-      elsif method[/^_.*_$/]
-        menu method.titleize.strip, *args, &block
-      else
-        item method.titleize, *args, &block
-      end
-    end
   end
   
-  class App < Wx::TaskBarIcon
+  class Icon < Wx::TaskBarIcon
+    include Builder
     def initialize title, icon = nil, &block
       super()
       @title = title
@@ -85,42 +108,18 @@ class SimpleTray
       instance_eval &@item_block
       @menu
     end
+  end
+end
 
-    # all below here is shared ... will DRY up ...
-    def item name, icon = nil, &block
-      block = icon if block.nil? and icon.respond_to?:call
-      item = Wx::MenuItem.new @menu, -1, name
-      @menu.append_item item
-      @menu.evt_menu(item){ block.call }
-      item
-    end
-    def menu name, icon = nil, &block
-      block = icon if block.nil? and icon.respond_to?:call
-      item = SimpleTray::MenuItem.new @menu, name, icon, &block
-      @menu.append_item item
-    end
-    def seperator
-      @menu.append_separator
-    end
-    def exit name = 'Quit'
-      @menu.append Wx::ID_EXIT, name
-      @menu.evt_menu(Wx::ID_EXIT){ Kernel::exit }
-    end
-    alias quit exit
-    def method_missing method, *args, &block
-      method = method.to_s
-      if method[/^_*$/]
-        seperator
-      elsif method[/^_.*_$/]
-        menu method.titleize.strip, *args, &block
-      else
-        item method.titleize, *args, &block
-      end
-    end
+module SimpleTray::Builder
+  def popup name, message
+    item( name ){ msgbox message }
   end
 end
 
 SimpleTray.app 'My Cool App' do
+
+  popup 'testing 1,2,3', 'this is my message'
   
   about { puts "this is my tray app!" }
 
@@ -143,6 +142,11 @@ SimpleTray.app 'My Cool App' do
   _options_ do
     profile { puts "your profile" }
     neato   { puts "blah!"        }
+    _nested_ do
+      _more_ do
+        clicky { msgbox "yay!" }
+      end
+    end
   end
 
   exit
