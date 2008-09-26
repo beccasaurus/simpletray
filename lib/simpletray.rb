@@ -103,7 +103,6 @@ class SimpleTray
     include Builder
   
     def initialize menu, name, icon = nil, &block
-      puts "MENU ITEM #{name}"
       super menu, -1, name
       @menu = menu
       @name = name
