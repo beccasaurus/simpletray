@@ -12,6 +12,6 @@ Gem::Specification.new do |s|
   s.authors = ["remi Taylor"]
 
   # generate using: $ ruby -e "puts Dir['**/**'].select{|x| File.file?x}.inspect"
-  s.files = ["examples/first.rb", "lib/simpletray.rb", "README.rdoc", "simpletray.gemspec", "Rakefile"]
+  s.files = ["examples/first.rb", "lib/simpletray.rb", "doc/README.rdoc", "simpletray.gemspec", "Rakefile"]
 
 end
