@@ -8,7 +8,7 @@ simpletray is a gem for making it really easy to make wxruby-based system tray a
 
 ### wx
 
-simpletray uses wxWidgets, so you need to install wx: http://www.wxwidgets.org/
+simpletray uses [wxWidgets](http://www.wxwidgets.org), so you need to install it
 
 A binary should be available for Windows users.  Mac/Linux should be able to use your packaging systems.
 See [http://www.wxwidgets.org/downloads/#latest_stable](http://www.wxwidgets.org/downloads/#latest_stable) for latest wxWidgets releases.
