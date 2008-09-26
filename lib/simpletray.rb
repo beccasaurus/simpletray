@@ -2,6 +2,7 @@ $:.unshift File.dirname(__FILE__)
 %w( rubygems wx activesupport ).each {|lib| require lib }
 
 class SimpleTray
+  cattr_accessor :icon_directory
 
   # Use this to run your SimpleTray application
   #
@@ -37,15 +38,29 @@ class SimpleTray
   module Builder
 
     def item name, icon = nil, &block
-      block = icon if block.nil? and icon.respond_to?:call
+      if block.nil? and icon.respond_to?:call
+        block = icon 
+        icon  = nil
+      end
       item = Wx::MenuItem.new @menu, -1, name
+
+      icon ||= name.titleize.gsub(' ','').underscore + '.png' # 'My Cool App' => 'my_cool_app.png'
+      icon = File.join SimpleTray.icon_directory, icon unless File.file?icon
+      if File.file?icon
+        icon = Wx::Bitmap.new icon, Wx::BITMAP_TYPE_PNG
+        item.set_bitmap icon
+      end
+      
       @menu.append_item item
       @menu.evt_menu(item){ block.call }
       item
     end
 
     def menu name, icon = nil, &block
-      block = icon if block.nil? and icon.respond_to?:call
+      if block.nil? and icon.respond_to?:call
+        block = icon 
+        icon  = nil
+      end
       item = SimpleTray::MenuItem.new @menu, name, icon, &block
       @menu.append_item item
     end
@@ -88,12 +103,24 @@ class SimpleTray
     include Builder
   
     def initialize menu, name, icon = nil, &block
+      puts "MENU ITEM #{name}"
       super menu, -1, name
       @menu = menu
+      @name = name
+      @icon = icon || @name.titleize.gsub(' ','').underscore + '.png' # 'My Cool App' => 'my_cool_app.png'
+      @icon = File.join SimpleTray.icon_directory, @icon unless File.file?@icon
+      init_icon
       @item_block = block
       self.get_menu.evt_menu_highlight(self){ |evt| on_highlight(evt) }
       @menu = Wx::Menu.new
       self.set_sub_menu @menu
+    end
+
+    def init_icon
+      if File.file?@icon
+        icon = Wx::Bitmap.new @icon, Wx::BITMAP_TYPE_PNG
+        set_bitmap icon
+      end
     end
   
     def on_highlight(evt)
@@ -115,7 +142,8 @@ class SimpleTray
       super()
       @title = title
       @icon  = icon || @title.titleize.gsub(' ','').underscore + '.png' # 'My Cool App' => 'my_cool_app.png'
-      refresh_icon
+      @icon  = File.join SimpleTray.icon_directory, @icon unless File.file?@icon
+      init_icon
       @item_block = block
     end
   
@@ -123,6 +151,15 @@ class SimpleTray
       @icon = path
     end
   
+    def init_icon
+      unless File.file?@icon
+        raise "SimpleTray icon not found!  #{ @icon }.  Try: SimpleTray.app 'title', 'path to icon'.  " + 
+              "Or set SimpleTray.icon_directory to the directory where your icons reside."
+      else
+        refresh_icon
+      end
+    end
+
     def refresh_icon
       set_icon Wx::Icon.new( @icon, Wx::BITMAP_TYPE_PNG ), @title if File.file?@icon
     end
@@ -135,3 +172,6 @@ class SimpleTray
   end
 
 end
+
+# default the icon directory to what we *think* is the path of the script being run
+SimpleTray.icon_directory = File.expand_path(File.dirname($0))
