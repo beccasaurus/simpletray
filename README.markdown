@@ -21,6 +21,7 @@ and ... simpletray!
 ## usage
 
     #! /usr/bin/env ruby
+    require 'rubygems'
     require 'simpletray'
 
     # icon my_cool_app.png will be used for the tray icon
