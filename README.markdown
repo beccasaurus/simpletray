@@ -19,6 +19,11 @@ For Mac OS X, try using [MacPorts](http://www.macports.org/):
 
     $ sudo port install wxwidgets
 
+For Ubuntu Linux, try:
+
+    # i *think* these are all the packages you need ... `aptitude search wx` to see all wx packages
+    $ sudo aptitude install libwxbase2.8-0 libwxgtk2.8-0
+
 ### gems
 
 now, install the required rubygems ...
