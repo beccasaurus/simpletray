@@ -1,3 +1,7 @@
-== simpletray
+= simpletray
 
 simpletray is a gem for making it really easy to make wxruby-based system tray applications
+
+== usage
+
+coming soon!  ( simpletray is working, but i'm adding 1 last feature and a bit of documentation ... )
