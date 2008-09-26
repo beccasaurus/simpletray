@@ -2,7 +2,24 @@
 
 simpletray is a gem for making it really easy to make wxruby-based system tray applications
 
+== installation
+
+simpletray uses wxWidgets, so you need to install wx: http://www.wxwidgets.org/
+
+a binary should be available for Windows users.  Mac/Linux should be able to use your packaging systems.
+
+now, install the required rubygems ...
+
+  $ sudo gem install wxruby activesupport
+
+and ... simpletray!
+
+  $ sudo gem install remi-simpletray -s http://gems.github.com
+
 == usage
+
+  #! /usr/bin/env ruby
+  require 'simpletray'
 
   # icon my_cool_app.png will be used for the tray icon
   SimpleTray.app 'My Cool App' do
