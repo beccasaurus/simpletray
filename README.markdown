@@ -4,6 +4,10 @@ simpletray is a gem for making it really easy to make wxruby-based system tray a
 
 ![SimpleTray Screenshot](http://github.com/remi/simpletray/tree/master/simpletray.png?raw=true)
 
+## BUG ALERT
+
+i stumbled upon a "show stopper" bug for OS X.  After installing wxwidgets from MacPorts, a necessary event wasn't being fired for OS X.  i'm in the process of figuring this out (and also successfully testing OK on Windows)
+
 ## installation
 
 ### wx
