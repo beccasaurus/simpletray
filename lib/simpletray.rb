@@ -48,7 +48,7 @@ class SimpleTray
       icon = File.join SimpleTray.icon_directory, icon unless File.file?icon
       if File.file?icon
         icon = Wx::Bitmap.new icon, Wx::BITMAP_TYPE_PNG
-        item.set_bitmap icon
+        item.set_bitmap icon unless PLATFORM[/darwin/]
       end
       
       @menu.append_item item
@@ -118,7 +118,7 @@ class SimpleTray
     def init_icon
       if File.file?@icon
         icon = Wx::Bitmap.new @icon, Wx::BITMAP_TYPE_PNG
-        set_bitmap icon
+        set_bitmap icon unless PLATFORM[/darwin/]
       end
     end
   
