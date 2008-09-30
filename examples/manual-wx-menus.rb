@@ -9,6 +9,10 @@
 # I intend on implementing EVERY POSSIBLE EVENT that I might want 
 # to take advantage of here, and then implementing them in SimpleTray
 
+def msgbox msg
+  Wx::MessageDialog.new(@frame, msg, 'Ashacache', Wx::OK, Wx::DEFAULT_POSITION ).show_modal
+end
+
 class AnItem < Wx::MenuItem
   def initialize *args
     super *args
@@ -22,7 +26,11 @@ class AnItem < Wx::MenuItem
     @submenu.append 'Second Item'
     @submenu.evt_menu_close { puts "@submenu closed!" }
     @submenu.evt_menu_open { puts "@submenu opened!" }
-    @submenu.evt_menu_highlight_all{ puts "highlight ALL" }
+    @submenu.evt_menu_highlight_all{ puts "highlight ALL"; msgbox "highlight ALL" }
+
+    # this is what worked in python ...
+		# self.parent.Bind(wx.EVT_MENU_HIGHLIGHT, self.OnMenuHighlight)
+    @menu.evt_menu_highlight(self) { msgbox "HELLO!!!! highlighed an item!" } # <--- does nothing
 
     self.set_sub_menu @submenu
   end
@@ -34,6 +42,7 @@ class MyTaskBarIcon < Wx::TaskBarIcon
     super()
     @icon = 'my_cool_app.png'
     set_icon Wx::Icon.new( @icon, Wx::BITMAP_TYPE_PNG ), 'w00t'
+    msgbox('started!')
   end
 
   def create_popup_menu
@@ -47,7 +56,7 @@ class MyTaskBarIcon < Wx::TaskBarIcon
     an_item = AnItem.new( menu, 12345, 'AnItem.new' )
     menu.append_item an_item
     menu.evt_menu(an_item){ puts "something having to do with an_item!" }
-    menu.evt_menu_highlight(an_item){ puts "highlighted an_item!" }
+    menu.evt_menu_highlight(an_item){ puts "highlighted an_item!"; msgbox "highlighted an_item!" }
     # menu.evt_menu_highlight_all{ puts "highlight ALL" }
     menu.evt_menu_close { puts "top-level menu closed!" }
     menu.evt_menu_open { puts "top-level menu opened!" }
