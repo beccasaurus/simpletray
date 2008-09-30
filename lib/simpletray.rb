@@ -62,6 +62,8 @@ class SimpleTray
         icon  = nil
       end
       item = SimpleTray::MenuItem.new @menu, name, icon, &block
+      puts "menu.is_a #{ @menu.class.name }"
+      puts "menu append methods: #{ @menu.methods.grep(/append/).inspect }"
       @menu.append_item item
     end
 
@@ -104,14 +106,17 @@ class SimpleTray
   
     def initialize menu, name, icon = nil, &block
       super menu, -1, name
-      @menu = menu
       @name = name
       @icon = icon || @name.titleize.gsub(' ','').underscore + '.png' # 'My Cool App' => 'my_cool_app.png'
       @icon = File.join SimpleTray.icon_directory, @icon unless File.file?@icon
       init_icon
       @item_block = block
       self.get_menu.evt_menu_highlight(self){ |evt| on_highlight(evt) }
+
       @menu = Wx::Menu.new
+      @menu.evt_menu_open { |evt| puts "menu open!" }
+      @menu.evt_menu_close { |evt| puts "menu close!" }
+      
       self.set_sub_menu @menu
     end
 
@@ -123,6 +128,7 @@ class SimpleTray
     end
   
     def on_highlight(evt)
+      puts "menu highlight!"
       instance_eval &@item_block if @menu.get_menu_item_count == 0
     end
   end
@@ -164,6 +170,7 @@ class SimpleTray
     end
   
     def create_popup_menu
+      puts "TaskBarIcon#create_popup_menu ... setting @menu to a new Wx::Menu"
       @menu = Wx::Menu.new
       instance_eval &@item_block
       @menu
