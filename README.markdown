@@ -6,7 +6,15 @@ simpletray is a gem for making it really easy to make wxruby-based system tray a
 
 ## BUG ALERT
 
-The way I'm binding events, one of the events (required for sub-menus) isn't working in Windows or OS X.  I'm currently in the process of fixing this, ASAP!
+Windows and OS X don't raise the required events for dynamically creating submenus.
+
+I'm in the process of testing this and finding a workaround.
+
+Hopefully, I can get this working on OS X.  For Windows, I'll be trying vruby / jruby / ironruby solutions.
+
+Hopefully, this will work with native Ruby on Linux / OS X.
+
+I'll be abstracting the GUI toolkit, so you can actually choose between Wx / Swing / WinForms / etc
 
 ## installation
 
