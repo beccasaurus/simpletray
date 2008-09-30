@@ -48,7 +48,7 @@ class MyTaskBarIcon < Wx::TaskBarIcon
     menu.append_item an_item
     menu.evt_menu(an_item){ puts "something having to do with an_item!" }
     menu.evt_menu_highlight(an_item){ puts "highlighted an_item!" }
-    menu.evt_menu_highlight_all{ puts "highlight ALL" }
+    # menu.evt_menu_highlight_all{ puts "highlight ALL" }
     menu.evt_menu_close { puts "top-level menu closed!" }
     menu.evt_menu_open { puts "top-level menu opened!" }
 
